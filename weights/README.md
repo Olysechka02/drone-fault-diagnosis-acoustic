@@ -24,13 +24,27 @@
 ```python
 from src.predict import predict
 
-result = predict("data/samples/A_B_MF1_185_DuckPond_637_snr=13.18.wav")
-print(result["fault_class"])         # 'MF1'
-print(result["fault_confidence"])    # 0.97...
+result = predict("path/to/your/audio.wav")
+print(result["fault_class"])         # 'MF1', 'PC2', 'N' и т. д.
+print(result["fault_confidence"])    # уверенность 0.0–1.0
 ```
 
 Или из командной строки:
 
 ```bash
-python -m src.predict data/samples/A_B_MF1_185_DuckPond_637_snr=13.18.wav
+python -m src.predict path/to/your/audio.wav
 ```
+
+## Формат файлов
+
+Все .pkl-файлы сохранены через **joblib** (стандарт для sklearn-объектов).
+В коде используется `joblib.load(...)`, а не `pickle.load(...)` — это важно
+для совместимости версий.
+
+## Проверка совместимости
+
+Модель в `src/model.py` точно соответствует архитектуре из
+`notebooks/final_model.ipynb`. Веса `fusion_resnet_se_mtl_cnn_weights.pth`
+содержат 119 ключей state_dict, все совпадают с моделью; общее число
+обучаемых параметров — 1 304 447. Все 3 примера в `data/samples/`
+классифицируются корректно (N, MF1, PC1) с confidence ≈ 1.0.

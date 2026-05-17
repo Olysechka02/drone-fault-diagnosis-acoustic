@@ -1,27 +1,27 @@
-# Core ML
+# ── Core ML ─────────────────────────────────────────────────────────────────
 torch>=2.0,<3.0
-torchaudio>=2.0,<3.0
-torchvision>=0.15,<1.0
+torchaudio>=2.0,<3.0     # МелSpectrogram через torchaudio (точно как в обучении)
 scikit-learn>=1.3
 numpy>=1.24,<3.0
 pandas>=2.0
+joblib>=1.3              # для загрузки .pkl scaler'ов и encoder'ов
+scipy>=1.10              # gmean для custom-признаков
 
-# Audio processing
-librosa>=0.10
-soundfile>=0.12
-soxr>=0.3
+# ── Audio processing ───────────────────────────────────────────────────────
+librosa>=0.10            # STFT-статистики, ресэмплирование
+soundfile>=0.12          # чтение WAV
 
-# Storage
-pyarrow>=14.0          # для Apache Parquet
+# ── Storage ────────────────────────────────────────────────────────────────
+pyarrow>=14.0            # для Apache Parquet (используется при обучении на полном датасете)
 
-# Visualization
+# ── Visualization ──────────────────────────────────────────────────────────
 matplotlib>=3.7
 seaborn>=0.13
 Pillow>=10.0
 
-# Utilities
+# ── Utilities ──────────────────────────────────────────────────────────────
 tqdm>=4.65
 
-# Jupyter (для notebooks/)
+# ── Jupyter (для notebooks/) ───────────────────────────────────────────────
 jupyter>=1.0
 ipykernel>=6.25

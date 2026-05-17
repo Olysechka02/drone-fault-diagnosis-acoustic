@@ -2,16 +2,21 @@
 Цикл обучения FusionResNetSEMTLCNN на датасете Yi et al. (2023).
 
 Этот файл — рабочий каркас. Полный код обучения с обработкой данных, метриками
-и сохранением весов находится в `notebooks/final_model.ipynb`. Здесь — основные
-функции, которые можно переиспользовать.
+и сохранением весов находится в `notebooks/final_model.ipynb`. Здесь —
+основные функции, которые можно переиспользовать.
 
-Параметры обучения (из ВКР):
+Параметры обучения (из notebook'а):
     Batch size: 128
-    Optimizer: Adam (lr=1e-3, β1=0.9, β2=0.999)
-    Scheduler: ReduceLROnPlateau (patience=5, factor=0.5)
-    Loss: 0.8 * CE_fault + 0.2 * CE_maneuver
-    Epochs: 50, early stopping patience=10
+    Optimizer: AdamW (lr=1e-3, weight_decay=1e-4)
+    Scheduler: ReduceLROnPlateau (mode='max', patience=3, factor=0.5)
+    Loss (train): 0.8 * CE_fault + 0.2 * CE_maneuver
+    Loss (valid): 0.5 * CE_fault + 0.5 * CE_maneuver
+    Epochs: 50, early stopping patience=7 по combined F1
     Stratified split 6:2:2 по составному ключу model × fault × maneuver
+
+⚠️ Для полного обучения требуется датасет, см. docs/dataset.md.
+Пути к parquet-файлам с предварительно извлечёнными признаками задаются
+в classе Config внутри notebooks/final_model.ipynb.
 """
 import torch
 import torch.nn as nn
