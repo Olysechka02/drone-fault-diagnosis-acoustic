@@ -229,4 +229,4 @@ drone-fault-diagnosis-acoustic/
 
 Автор: **Костырина Олеся Григорьевна** (Olesya G. Kostyrina)
 Кафедра Е5, БГТУ «ВОЕНМЕХ» им. Д.Ф. Устинова
-Email: [adaurum.marketing@gmail.com](mailto:adaurum.marketing@gmail.com)
+Email: [lkostyrina135@gmail.com](mailto:lkostyrina135@gmail.com)
