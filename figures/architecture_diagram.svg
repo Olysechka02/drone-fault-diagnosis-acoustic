@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1300 440" width="1300" height="440">
+  <defs>
+    <marker id="arr" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0, 9 3.5, 0 7" fill="#1565C0"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1300" height="440" fill="white"/>
+
+  <!-- ========== TITLE ========== -->
+  <text x="650" y="28" text-anchor="middle" fill="#0D47A1" font-size="15" font-weight="bold" font-family="Arial">Архитектура FusionResNetSEMTLCNN</text>
+
+  <!-- ========== INPUT ========== -->
+  <rect x="10" y="200" width="122" height="48" rx="6" fill="#0D47A1"/>
+  <text x="71" y="221" text-anchor="middle" fill="white" font-size="12" font-weight="bold" font-family="Arial">Аудиосигнал</text>
+  <text x="71" y="237" text-anchor="middle" fill="white" font-size="11" font-family="Arial">0,5 с / 16 кГц</text>
+
+  <!-- Input → branch split -->
+  <line x1="132" y1="224" x2="162" y2="224" stroke="#1565C0" stroke-width="2"/>
+  <circle cx="163" cy="224" r="4" fill="#1565C0"/>
+  <!-- Upper branch -->
+  <polyline points="163,224 163,107 182,107" fill="none" stroke="#1565C0" stroke-width="2" marker-end="url(#arr)"/>
+  <!-- Lower branch -->
+  <polyline points="163,224 163,337 182,337" fill="none" stroke="#1565C0" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- ========== BRANCH LABELS (простые, над блоками, без рамок) ========== -->
+  <text x="186" y="72" fill="#1565C0" font-size="10" font-style="italic" font-weight="bold" font-family="Arial">Мел-ветвь</text>
+  <text x="186" y="305" fill="#1565C0" font-size="10" font-style="italic" font-weight="bold" font-family="Arial">STFT-ветвь</text>
+
+  <!-- ========== MEL FEATURES ========== -->
+  <rect x="184" y="82" width="158" height="50" rx="5" fill="#E3F2FD" stroke="#1565C0" stroke-width="1.5"/>
+  <text x="263" y="102" text-anchor="middle" fill="#0D47A1" font-size="11" font-weight="bold" font-family="Arial">Мел-спектрограмма</text>
+  <text x="263" y="118" text-anchor="middle" fill="#1565C0" font-size="10" font-family="Arial">20 × 64 = 1 280 признаков</text>
+
+  <line x1="342" y1="107" x2="362" y2="107" stroke="#1565C0" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- ========== CONV1D ========== -->
+  <rect x="364" y="82" width="112" height="50" rx="5" fill="#1976D2"/>
+  <text x="420" y="102" text-anchor="middle" fill="white" font-size="11" font-weight="bold" font-family="Arial">Conv1D</text>
+  <text x="420" y="118" text-anchor="middle" fill="white" font-size="10" font-family="Arial">1 → 32, k = 7</text>
+
+  <line x1="476" y1="107" x2="496" y2="107" stroke="#1565C0" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- ========== SE-RESNET ========== -->
+  <rect x="498" y="82" width="128" height="50" rx="5" fill="#1565C0"/>
+  <text x="562" y="100" text-anchor="middle" fill="white" font-size="11" font-weight="bold" font-family="Arial">SE-ResNet</text>
+  <text x="562" y="114" text-anchor="middle" fill="white" font-size="10" font-family="Arial">блоки × 3</text>
+  <text x="562" y="126" text-anchor="middle" fill="#90CAF9" font-size="9" font-family="Arial">32 → 64 → 128 кан.</text>
+
+  <line x1="626" y1="107" x2="648" y2="107" stroke="#1565C0" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- ========== AVGPOOL + FC96 ========== -->
+  <rect x="650" y="82" width="132" height="50" rx="5" fill="#1976D2"/>
+  <text x="716" y="100" text-anchor="middle" fill="white" font-size="11" font-weight="bold" font-family="Arial">AdaptiveAvgPool</text>
+  <text x="716" y="114" text-anchor="middle" fill="white" font-size="10" font-family="Arial">FC 128 → 96</text>
+  <text x="716" y="126" text-anchor="middle" fill="#BBDEFB" font-size="9" font-family="Arial">→ 96 признаков</text>
+
+  <!-- Top → Fusion -->
+  <polyline points="782,107 814,107 814,196" fill="none" stroke="#1565C0" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="795" y="100" fill="#0D47A1" font-size="9" font-weight="bold" font-family="Arial">96</text>
+
+  <!-- ========== STFT FEATURES ========== -->
+  <rect x="184" y="312" width="158" height="50" rx="5" fill="#E3F2FD" stroke="#1565C0" stroke-width="1.5"/>
+  <text x="263" y="332" text-anchor="middle" fill="#0D47A1" font-size="11" font-weight="bold" font-family="Arial">STFT-статистики</text>
+  <text x="263" y="348" text-anchor="middle" fill="#1565C0" font-size="10" font-family="Arial">32 признака</text>
+
+  <line x1="342" y1="337" x2="362" y2="337" stroke="#1565C0" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- ========== FC32 + BN + RELU ========== -->
+  <rect x="364" y="312" width="118" height="50" rx="5" fill="#1976D2"/>
+  <text x="423" y="331" text-anchor="middle" fill="white" font-size="11" font-weight="bold" font-family="Arial">FC 32 → 32</text>
+  <text x="423" y="347" text-anchor="middle" fill="white" font-size="10" font-family="Arial">BatchNorm + ReLU</text>
+
+  <!-- Bottom → Fusion -->
+  <polyline points="482,337 814,337 814,254" fill="none" stroke="#1565C0" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="795" y="351" fill="#0D47A1" font-size="9" font-weight="bold" font-family="Arial">32</text>
+
+  <!-- ========== FUSION ========== -->
+  <rect x="804" y="196" width="134" height="58" rx="6" fill="#0D47A1" stroke="#FFA726" stroke-width="2.5"/>
+  <text x="871" y="217" text-anchor="middle" fill="white" font-size="11" font-weight="bold" font-family="Arial">Конкатенация</text>
+  <text x="871" y="233" text-anchor="middle" fill="#FFE082" font-size="12" font-weight="bold" font-family="Arial">96 + 32 = 128</text>
+  <text x="871" y="246" text-anchor="middle" fill="#90CAF9" font-size="9" font-family="Arial">Fusion</text>
+
+  <line x1="938" y1="225" x2="962" y2="225" stroke="#1565C0" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- ========== FC 128→64 ========== -->
+  <rect x="964" y="196" width="114" height="58" rx="6" fill="#1565C0"/>
+  <text x="1021" y="219" text-anchor="middle" fill="white" font-size="11" font-weight="bold" font-family="Arial">FC 128 → 64</text>
+  <text x="1021" y="234" text-anchor="middle" fill="white" font-size="10" font-family="Arial">ReLU</text>
+  <text x="1021" y="247" text-anchor="middle" fill="#90CAF9" font-size="9" font-family="Arial">общий слой</text>
+
+  <!-- FC → split to outputs -->
+  <line x1="1078" y1="225" x2="1110" y2="225" stroke="#1565C0" stroke-width="2"/>
+  <circle cx="1111" cy="225" r="4" fill="#1565C0"/>
+  <polyline points="1111,225 1111,153 1121,153" fill="none" stroke="#1565C0" stroke-width="2" marker-end="url(#arr)"/>
+  <polyline points="1111,225 1111,300 1121,300" fill="none" stroke="#1565C0" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- ========== FAULT OUTPUT ========== -->
+  <rect x="1123" y="115" width="166" height="78" rx="6" fill="#E8F5E9" stroke="#2E7D32" stroke-width="2"/>
+  <text x="1206" y="138" text-anchor="middle" fill="#1B5E20" font-size="11" font-weight="bold" font-family="Arial">Неисправности</text>
+  <text x="1206" y="154" text-anchor="middle" fill="#2E7D32" font-size="10" font-family="Arial">9 классов:</text>
+  <text x="1206" y="168" text-anchor="middle" fill="#2E7D32" font-size="10" font-family="Arial">N, MF1–MF4,</text>
+  <text x="1206" y="182" text-anchor="middle" fill="#2E7D32" font-size="10" font-family="Arial">PC1–PC4</text>
+
+  <!-- ========== MANEUVER OUTPUT ========== -->
+  <rect x="1123" y="262" width="166" height="78" rx="6" fill="#FFF8E1" stroke="#F57C00" stroke-width="2"/>
+  <text x="1206" y="285" text-anchor="middle" fill="#E65100" font-size="11" font-weight="bold" font-family="Arial">Манёвры</text>
+  <text x="1206" y="301" text-anchor="middle" fill="#BF360C" font-size="10" font-family="Arial">6 классов:</text>
+  <text x="1206" y="315" text-anchor="middle" fill="#BF360C" font-size="10" font-family="Arial">F, B, L, R,</text>
+  <text x="1206" y="329" text-anchor="middle" fill="#BF360C" font-size="10" font-family="Arial">C, CC</text>
+
+  <!-- ========== MTL LABEL ========== -->
+  <rect x="1123" y="44" width="166" height="22" rx="4" fill="none" stroke="#B0BEC5" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="1206" y="58" text-anchor="middle" fill="#607D8B" font-size="9" font-family="Arial">Мультизадачный выход (MTL)</text>
+
+  <!-- ========== PARAMS NOTE ========== -->
+  <text x="650" y="420" text-anchor="middle" fill="#90A4AE" font-size="10" font-family="Arial">Всего параметров: 1 304 447</text>
+</svg>
