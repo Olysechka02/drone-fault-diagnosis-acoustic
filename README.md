@@ -25,10 +25,10 @@
 
 `FusionResNetSEMTLCNN` — двухпотоковая нейросеть с **1 304 447 обучаемыми параметрами** (~5 МБ при float32):
 
-- **Мел-ветвь:** мел-спектрограмма 20 × 64 → Conv1D → 3 × SEResidualBlock → AdaptiveAvgPool → FC(128 → 96);
-- **STFT-ветвь:** 32 кастомных STFT-статистики (узкополосные в диапазоне 2–3 кГц + широкополосные) → FC(32 → 32);
-- **Fusion:** конкатенация 96 + 32 = 128 → FC(128 → 64);
-- **Две головы (MTL):** fault (9 классов) и maneuver (6 классов).
+- **Мел-ветвь:** мел-спектрограмма 20 × 64 → `Conv2D(1→32, 3×3) + MaxPool` → 2×`SEResidualBlock(32→64)` → 2×`SEResidualBlock(64→128, ↓2)` → 1×`SEResidualBlock(128→192, ↓2)` → `AdaptiveAvgPool2D` → 192d;
+- **STFT-ветвь:** 32 кастомных STFT-статистики (узкополосные в диапазоне 2–3 кГц + широкополосные) подаются напрямую без отдельного FC;
+- **Fusion:** конкатенация 192 + 32 = **224** → FC(224 → 128) → FC(128 → 96) → FC(96 → 64) с BatchNorm + Dropout(0.25);
+- **Две головы (MTL):** fault (64 → 96 → 9 классов) и maneuver (64 → 48 → 6 классов).
 
 ![Архитектура](figures/architecture_diagram.png)
 
@@ -60,19 +60,26 @@ pip install -r requirements.txt
 ### Инференс на одном файле
 
 ```bash
-python -m src.predict data/samples/A_B_MF1_185_DuckPond_637_snr=13.18.wav
+# запуск без аргументов — возьмёт пример MF1 из data/samples/
+python -m src.predict
+
+# или укажи путь к своему WAV
+python -m src.predict path/to/your/audio.wav
 ```
 
-Ожидаемый вывод:
+Ожидаемый вывод (на встроенном примере MF1):
 
 ```
-Fault:    MF1 (confidence 0.97...)
-Maneuver: B (confidence 0.94...)
+Файл: A_B_MF1_185_DuckPond_637_snr=13.182254877166207.wav
+Обработано окон: 3
 
-Top-3 fault probabilities:
-  MF1: 0.97...
-  MF2: 0.02...
-  N:   0.01...
+  Неисправность: MF1 (confidence 1.0000)
+  Манёвр:        B (confidence 0.9951)
+
+  Top-3 fault probabilities:
+    MF1: 1.0000
+    N: 0.0000
+    MF2: 0.0000
 ```
 
 ### Программный API
@@ -84,16 +91,20 @@ result = predict("path/to/audio.wav")
 print(result["fault_class"])         # 'MF1', 'PC2', 'N' и т. д.
 print(result["fault_confidence"])    # 0.0 – 1.0
 print(result["fault_probs"])         # вероятности по всем 9 классам
+print(result["n_windows"])           # число 0.2-секундных окон в файле
 ```
+
+Файл может содержать несколько окон по 0.2 с (для записи 0.5 с обычно 3 окна) —
+итоговая вероятность усредняется по всем окнам.
 
 ### Извлечение признаков
 
 ```python
 from src.features import extract_all
 
-mel, stft = extract_all("path/to/audio.wav")
-print(mel.shape)   # (20, 64) — мел-спектрограмма
-print(stft.shape)  # (32,)   — статистические признаки
+mel, custom = extract_all("path/to/audio.wav")
+print(mel.shape)      # (n_windows, 1280) — плоский вид мел-окон 20 × 64
+print(custom.shape)   # (n_windows, 32)   — статистические признаки 2–3 кГц
 ```
 
 ### Обучение
@@ -103,10 +114,11 @@ print(stft.shape)  # (32,)   — статистические признаки
 Гиперпараметры:
 
 - Batch size: 128;
-- Optimizer: Adam (lr = 1×10⁻³, β₁ = 0,9, β₂ = 0,999);
-- Scheduler: ReduceLROnPlateau (patience = 5, factor = 0,5);
-- Loss: `0.8 * CE_fault + 0.2 * CE_maneuver`;
-- Эпохи: 50, early stopping patience = 10;
+- Optimizer: AdamW (lr = 1×10⁻³, weight_decay = 1×10⁻⁴);
+- Scheduler: ReduceLROnPlateau (mode='max', patience = 3, factor = 0,5);
+- Loss (train): `0.8 * CE_fault + 0.2 * CE_maneuver`;
+- Loss (valid): `0.5 * CE_fault + 0.5 * CE_maneuver`;
+- Эпохи: 50, early stopping patience = 7 по combined F1 = `0.8 * F1_fault + 0.2 * F1_maneuver`;
 - Стратификация выборки: 6:2:2 по составному ключу `модель × класс × манёвр`.
 
 ---
